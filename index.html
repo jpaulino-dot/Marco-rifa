@@ -1132,18 +1132,26 @@ function processPurchase(e) {
         ticketsContainer.appendChild(badge);
     }
 
-    // 2. Capturar los datos del formulario
-    const clientName = document.getElementById('nombreCliente')?.value || 'Cliente';
-    const clientPhone = document.getElementById('telefonoCliente')?.value || 'N/A';
-    const paymentMethod = document.getElementById('metodoPago')?.value || 'Transferencia';
-    const totalAmount = (ticketQty * 50).toLocaleString();
-    const ticketsString = generatedNumbers.join(', ');
+   // 2. Capturar los datos del formulario (soporta varios IDs posibles)
+    const clientName = (
+        document.getElementById('nombreCliente') || 
+        document.getElementById('buyerName') || 
+        document.getElementById('nombre') || 
+        document.querySelector('input[type="text"]')
+    )?.value || 'Cliente';
 
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = 'Guardando...';
-    }
+    const clientPhone = (
+        document.getElementById('telefonoCliente') || 
+        document.getElementById('buyerPhone') || 
+        document.getElementById('telefono') || 
+        document.querySelector('input[type="tel"]')
+    )?.value || 'N/A';
+
+    const paymentMethod = (
+        document.getElementById('metodoPago') || 
+        document.getElementById('paymentMethod') || 
+        document.getElementById('metodo')
+    )?.value || 'Transferencia';
 
     // 3. Enviar registro a Google Sheets
     fetch(GOOGLE_SCRIPT_URL, {
