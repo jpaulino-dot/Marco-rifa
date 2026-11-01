@@ -496,38 +496,30 @@
         }
 
         // FUNCIÓN PARA CARGAR EL PROGRESO DE VENTAS DESDE GOOGLE SHEETS
-        function loadRaffleProgress() {
-            fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
-                .then(res => res.json())
-                .then(data => {
-                    let totalSold = 0;
-                    if (data.status === 'success' && data.results) {
-                        data.results.forEach(item => {
-                            let qty = parseInt(item.boletos) || 0;
-                            totalSold += qty;
-                        });
-                    }
-                    
-                    const totalGoal = 10000; // Meta de boletos
-                    let percentage = (totalSold / totalGoal) * 100;
-                    if (percentage > 100) percentage = 100;
-
-                    document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
-                    document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
-                    document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
-                })
-                .catch(err => {
-                    console.log("Error al cargar progreso:", err);
-                    document.getElementById('progressText').innerText = '92.4% Vendido';
-                    document.getElementById('progressBar').style.width = '92.4%';
-                    document.getElementById('soldStatsText').innerText = '9,240 de 10,000 vendidos';
+      function loadRaffleProgress() {
+    fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
+        .then(res => res.json())
+        .then(data => {
+            let totalSold = 0;
+            if (data.status === 'success' && data.results && data.results.length > 0) {
+                data.results.forEach(item => {
+                    let qty = parseInt(item.boletos) || 0;
+                    totalSold += qty;
                 });
-        }
+            }
+            
+            const totalGoal = 10000; // Meta total de boletos
+            let percentage = (totalSold / totalGoal) * 100;
+            if (percentage > 100) percentage = 100;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            loadRaffleProgress();
+            document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
+            document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
+            document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
+        })
+        .catch(err => {
+            console.error("Error al cargar progreso:", err);
         });
-
+}
         function processPurchase(e) {
             e.preventDefault();
             
