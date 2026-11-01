@@ -496,30 +496,39 @@
         }
 
         // FUNCIÓN PARA CARGAR EL PROGRESO DE VENTAS DESDE GOOGLE SHEETS
-      function loadRaffleProgress() {
-    fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
-        .then(res => res.json())
-        .then(data => {
-            let totalSold = 0;
-            if (data.status === 'success' && data.results && data.results.length > 0) {
-                data.results.forEach(item => {
-                    let qty = parseInt(item.boletos) || 0;
-                    totalSold += qty;
-                });
-            }
-            
-            const totalGoal = 10000; // Meta total de boletos
-            let percentage = (totalSold / totalGoal) * 100;
-            if (percentage > 100) percentage = 100;
+        function loadRaffleProgress() {
+            fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
+                .then(res => res.json())
+                .then(data => {
+                    let totalSold = 0;
+                    if (data.status === 'success' && data.results) {
+                        data.results.forEach(item => {
+                            let qty = parseInt(item.boletos) || 0;
+                            totalSold += qty;
+                        });
+                    }
+                    
+                    const totalGoal = 10000; // Meta total de boletos
+                    let percentage = (totalSold / totalGoal) * 100;
+                    if (percentage > 100) percentage = 100;
 
-            document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
-            document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
-            document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
-        })
-        .catch(err => {
-            console.error("Error al cargar progreso:", err);
+                    document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
+                    document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
+                    document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
+                })
+                .catch(err => {
+                    console.error("Error al cargar progreso:", err);
+                    document.getElementById('progressText').innerText = '0.0% Vendido';
+                    document.getElementById('progressBar').style.width = '0%';
+                    document.getElementById('soldStatsText').innerText = '0 de 10,000 vendidos';
+                });
+        }
+
+        // Ejecutar la carga del progreso al abrir la página
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRaffleProgress();
         });
-}
+
         function processPurchase(e) {
             e.preventDefault();
             
@@ -576,7 +585,7 @@
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Confirmar y Obtener Mis Boletos';
 
-                // Actualizar barra de progreso al instante al comprar
+                // Actualiza la barra de progreso inmediatamente después de comprar
                 loadRaffleProgress();
 
                 const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
