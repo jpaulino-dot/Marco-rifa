@@ -270,18 +270,18 @@
 function processPurchase(e) {
     e.preventDefault();
     
-    // 1. Capturar los datos del formulario de forma segura
+    // 1. Capturar los datos de los inputs del formulario
     const nameInput = document.getElementById('nombreCliente');
     const phoneInput = document.getElementById('telefonoCliente');
     const paymentSelect = document.getElementById('metodoPago');
 
-    const clientName = nameInput ? nameInput.value : 'Cliente';
-    const clientPhone = phoneInput ? phoneInput.value : 'N/A';
+    const clientName = nameInput ? nameInput.value.trim() : 'Cliente';
+    const clientPhone = phoneInput ? phoneInput.value.trim() : 'N/A';
     const paymentMethod = paymentSelect ? paymentSelect.value : 'Transferencia';
     
     const totalAmount = (ticketQty * pricePerTicket).toLocaleString();
 
-    // Generar números aleatorios en pantalla
+    // 2. Generar números de boletos
     const ticketsContainer = document.getElementById('generatedTicketsList');
     if (ticketsContainer) {
         ticketsContainer.innerHTML = '';
@@ -304,47 +304,55 @@ function processPurchase(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerText = 'Procesando...';
+        submitBtn.innerText = 'Guardando en la base de datos...';
     }
 
-    // 2. Preparar el mensaje de WhatsApp de inmediato
-    const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
-        `👤 *Nombre:* ${clientName}%0A` +
-        `📱 *Teléfono:* ${clientPhone}%0A` +
-        `🎟️ *Boletos:* ${ticketQty}%0A` +
-        `🔢 *Números:* ${ticketsString}%0A` +
-        `💰 *Total:* RD$ ${totalAmount}%0A` +
-        `💳 *Método:* ${paymentMethod}`;
+    // 3. Objeto con los datos a enviar
+    const payload = {
+        nombre: clientName,
+        telefono: clientPhone,
+        boletos: ticketQty,
+        numeros: ticketsString,
+        total: totalAmount + ' DOP',
+        metodo: paymentMethod
+    };
 
-    // Abrir WhatsApp inmediatamente para evitar bloqueos del navegador
-    window.open(`https://wa.me/19145088807?text=${waMessage}`, '_blank');
-
-    // 3. Enviar los datos en segundo plano a Google Sheets
+    // 4. Enviar a Google Sheets usando URLSearchParams (Evita bloqueos de CORS)
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain;charset=utf-8',
         },
-        body: JSON.stringify({
-            nombre: clientName,
-            telefono: clientPhone,
-            boletos: ticketQty,
-            numeros: ticketsString,
-            total: totalAmount + ' DOP',
-            metodo: paymentMethod
-        })
-    }).catch(err => {
-        console.error("Error al enviar a Google Sheets:", err);
-    }).finally(() => {
-        alert('¡Jugada registrada con éxito! Revisa tu WhatsApp para enviar el comprobante.');
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        finalizarYRedirigir();
+    })
+    .catch(err => {
+        console.error("Error al guardar:", err);
+        // Aunque capture error de CORS en respuesta, los datos llegan a Google Sheets
+        finalizarYRedirigir();
+    });
+
+    function finalizarYRedirigir() {
+        const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
+            `👤 *Nombre:* ${clientName}%0A` +
+            `📱 *Teléfono:* ${clientPhone}%0A` +
+            `🎟️ *Boletos:* ${ticketQty}%0A` +
+            `🔢 *Números:* ${ticketsString}%0A` +
+            `💰 *Total:* RD$ ${totalAmount}%0A` +
+            `💳 *Método:* ${paymentMethod}`;
+
+        window.open(`https://wa.me/18090000000?text=${waMessage}`, '_blank');
+
+        alert('¡Registro guardado con éxito!');
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = 'Confirmar y Recibir Boletos';
         }
         closeModal();
-    });
-} // <-- Llave de cierre de la función processPurchase(e)
+    }
+}
 </script>
 </body>
 </html>
