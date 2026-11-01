@@ -467,14 +467,15 @@
             ticketsContainer.innerHTML = '';
             const generatedNumbers = [];
 
-            for (let i = 0; i < ticketQty; i++) {
-                const randomNum = Math.floor(1000 + Math.random() * 9000);
-                generatedNumbers.push('#' + randomNum);
-                
-                const badge = document.createElement('span');
-                badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
-                badge.textContent = `#${randomNum}`;
-                ticketsContainer.appendChild(badge);
+              for (let i = 0; i < ticketQty; i++) {
+            // Genera un número aleatorio entre 0 y 99999 y asegura 5 dígitos con ceros a la izquierda
+            const randomNum = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            generatedNumbers.push('#' + randomNum);
+    
+            const badge = document.createElement('span');
+            badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
+            badge.textContent = `#${randomNum}`;
+            ticketsContainer.appendChild(badge);
             }
             const ticketsString = generatedNumbers.join(', ');
 
