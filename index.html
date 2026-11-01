@@ -267,72 +267,84 @@
             document.getElementById('checkoutModal').classList.add('hidden');
         }
 
-        function processPurchase(e) {
-            e.preventDefault();
-            
-            // Generar números de boletos aleatorios
-            const ticketsContainer = document.getElementById('generatedTicketsList');
-            ticketsContainer.innerHTML = '';
-            const generatedNumbers = [];
+function processPurchase(e) {
+    e.preventDefault();
+    
+    // 1. Capturar los datos del formulario de forma segura
+    const nameInput = document.getElementById('nombreCliente');
+    const phoneInput = document.getElementById('telefonoCliente');
+    const paymentSelect = document.getElementById('metodoPago');
 
-            for (let i = 0; i < ticketQty; i++) {
-                const randomNum = Math.floor(1000 + Math.random() * 9000);
-                generatedNumbers.push('#' + randomNum);
-                
-                const badge = document.createElement('span');
-                badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
-                badge.textContent = `#${randomNum}`;
-                ticketsContainer.appendChild(badge);
-            }
+    const clientName = nameInput ? nameInput.value : 'Cliente';
+    const clientPhone = phoneInput ? phoneInput.value : 'N/A';
+    const paymentMethod = paymentSelect ? paymentSelect.value : 'Transferencia';
+    
+    const totalAmount = (ticketQty * pricePerTicket).toLocaleString();
 
-            // Capturar datos asegurando los IDs correctos
-            const clientName = document.getElementById('nombreCliente').value;
-            const clientPhone = document.getElementById('telefonoCliente').value;
-            const paymentMethod = document.getElementById('metodoPago').value;
-            const totalAmount = (ticketQty * pricePerTicket).toLocaleString();
-            const ticketsString = generatedNumbers.join(', ');
+    // Generar números aleatorios en pantalla
+    const ticketsContainer = document.getElementById('generatedTicketsList');
+    if (ticketsContainer) {
+        ticketsContainer.innerHTML = '';
+    }
+    const generatedNumbers = [];
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Guardando en la base de datos...';
-
-            // Enviar a Google Sheets
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    nombre: clientName,
-                    telefono: clientPhone,
-                    boletos: ticketQty,
-                    numeros: ticketsString,
-                    total: totalAmount + ' DOP',
-                    metodo: paymentMethod
-                })
-            }).then(() => {
-                // Redirigir a WhatsApp
-                const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
-                    `👤 *Nombre:* ${clientName}%0A` +
-                    `📱 *Teléfono:* ${clientPhone}%0A` +
-                    `🎟️ *Boletos:* ${ticketQty}%0A` +
-                    `🔢 *Números:* ${ticketsString}%0A` +
-                    `💰 *Total:* RD$ ${totalAmount}%0A` +
-                    `💳 *Método:* ${paymentMethod}`;
-                    
-                window.open(`https://wa.me/18090000000?text=${waMessage}`, '_blank');
-                
-                alert('¡Registro guardado con éxito y boletos generados!');
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'Confirmar y Recibir Boletos';
-                closeModal();
-            }).catch(err => {
-                console.error(err);
-                alert('Ocurrió un error al guardar.');
-                submitBtn.disabled = false;
-            });
+    for (let i = 0; i < ticketQty; i++) {
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        generatedNumbers.push('#' + randomNum);
+        
+        if (ticketsContainer) {
+            const badge = document.createElement('span');
+            badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
+            badge.textContent = `#${randomNum}`;
+            ticketsContainer.appendChild(badge);
         }
-    </script>
+    }
+    const ticketsString = generatedNumbers.join(', ');
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Procesando...';
+    }
+
+    // 2. Preparar el mensaje de WhatsApp de inmediato
+    const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
+        `👤 *Nombre:* ${clientName}%0A` +
+        `📱 *Teléfono:* ${clientPhone}%0A` +
+        `🎟️ *Boletos:* ${ticketQty}%0A` +
+        `🔢 *Números:* ${ticketsString}%0A` +
+        `💰 *Total:* RD$ ${totalAmount}%0A` +
+        `💳 *Método:* ${paymentMethod}`;
+
+    // Abrir WhatsApp inmediatamente para evitar bloqueos del navegador
+    window.open(`https://wa.me/19145088807?text=${waMessage}`, '_blank');
+
+    // 3. Enviar los datos en segundo plano a Google Sheets
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            nombre: clientName,
+            telefono: clientPhone,
+            boletos: ticketQty,
+            numeros: ticketsString,
+            total: totalAmount + ' DOP',
+            metodo: paymentMethod
+        })
+    }).catch(err => {
+        console.error("Error al enviar a Google Sheets:", err);
+    }).finally(() => {
+        alert('¡Jugada registrada con éxito! Revisa tu WhatsApp para enviar el comprobante.');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Confirmar y Recibir Boletos';
+        }
+        closeModal();
+    });
+} // <-- Llave de cierre de la función processPurchase(e)
+</script>
 </body>
 </html>
