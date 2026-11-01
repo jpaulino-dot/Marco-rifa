@@ -288,11 +288,23 @@ function processPurchase(e) {
         ticketsContainer.appendChild(badge);
     }
 
-    // 2. Capturar los datos del formulario
-    const clientName = document.getElementById('nombreCliente')?.value || 'Cliente';
-    const clientPhone = document.getElementById('telefonoCliente')?.value || 'N/A';
-    const paymentMethod = document.getElementById('metodoPago')?.value || 'Transferencia';
-    const totalAmount = (ticketQty * 50).toLocaleString();
+    // 2. Capturar los datos del formulario de forma segura
+    const nameInput = document.getElementById('nombreCliente');
+    const phoneInput = document.getElementById('telefonoCliente');
+    const paymentSelect = document.getElementById('metodoPago');
+
+    const clientName = nameInput ? nameInput.value.trim() : '';
+    const clientPhone = phoneInput ? phoneInput.value.trim() : '';
+    const paymentMethod = paymentSelect ? paymentSelect.value : 'Transferencia Bancaria';
+    
+    // Validación por si el cliente deja los campos vacíos
+    if (!clientName || !clientPhone) {
+        alert('Por favor, completa tu nombre y número de teléfono.');
+        return;
+    }
+
+    // Cálculo correcto basado en el precio real de 250 DOP por boleto
+    const totalAmount = (ticketQty * 250).toLocaleString();
     const ticketsString = generatedNumbers.join(', ');
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
