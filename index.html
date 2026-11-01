@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marcos Rifa| Sorteos y Premios de Lujo</title>
+    <title>Marcos Rifa | Sorteos y Premios de Lujo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -116,7 +116,7 @@
                         <span class="font-heading font-black text-xl sm:text-2xl text-white tracking-wider block leading-none">
                             MARCOS<span class="text-gradient-gold">RIFA</span>
                         </span>
-                        <span class="text-[10px] font-bold text-brand-gold uppercase tracking-widest block mt-0.5">!Tu premio seguro!</span>
+                        <span class="text-[10px] font-bold text-brand-gold uppercase tracking-widest block mt-0.5">¡Tu premio seguro!</span>
                     </div>
                 </a>
 
@@ -155,7 +155,7 @@
                 </h1>
                 
                 <p class="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
-                    Gana Vehuculo, El ultimo Phone o Dinero en efectivo muy fácil y transparente. Elige tus números y sé el próximo Ganador
+                    Gana Vehículo, El último Phone o Dinero en efectivo muy fácil y transparente. Elige tus números y sé el próximo Ganador.
                 </p>
 
                 <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -175,7 +175,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
                 <h2 class="font-heading font-extrabold text-2xl sm:text-4xl text-white">
-                    RIFA DESTACADA - <span class="text-gradient-gold">¡TU PUEDES GANAR HOY!</span>
+                    RIFA DESTACADA - <span class="text-gradient-gold">¡TÚ PUEDES GANAR HOY!</span>
                 </h2>
                 <p class="text-gray-400 text-sm mt-2">Selecciona la cantidad de boletos que deseas y participa al instante.</p>
             </div>
@@ -297,12 +297,12 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
                     <h3 class="font-heading font-extrabold text-2xl sm:text-3xl text-white">Verificar Mis Boletos</h3>
-                    <p class="text-gray-400 text-sm">Ingresa tu número de boleto asignado (ej: #5432) o tu número de teléfono para consultar tu estatus en tiempo real.</p>
+                    <p class="text-gray-400 text-sm">Ingresa tu número de boleto asignado (ej: #05432) o tu número de teléfono para consultar tu estatus en tiempo real.</p>
                 </div>
 
                 <div class="space-y-4 max-w-xl mx-auto">
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="verifyInput" placeholder="Ej: #1234 o 809-555-0199" 
+                        <input type="text" id="verifyInput" placeholder="Ej: #01234 o 809-555-0199" 
                                class="w-full h-14 px-5 bg-brand-dark border border-brand-border rounded-2xl text-white font-medium text-base focus:outline-none focus:border-brand-gold transition-colors">
                         <button onclick="verifyTickets()" id="btnVerify" class="sm:w-48 h-14 bg-gradient-gold text-black font-bold rounded-2xl shadow-lg hover:scale-105 transition-all text-sm uppercase tracking-wider flex items-center justify-center gap-2">
                             <i class="fa-solid fa-search"></i> Buscar
@@ -322,7 +322,15 @@
         <p>© 2026 Marcos Rifa Te Monta. Todos los derechos reservados.</p>
     </footer>
 
-  <!-- Step 1: Form & Details -->
+    <!-- CHECKOUT MODAL CORREGIDO Y CONTENIDO DENTRO DEL CONTENEDOR -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="glass-modal w-full max-w-xl rounded-3xl p-6 sm:p-8 border border-brand-gold/40 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <button onclick="closeCheckoutModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Step 1: Form & Details -->
             <div id="modalStep1" class="space-y-6">
                 <div class="border-b border-brand-border pb-4">
                     <span class="text-xs font-bold text-brand-gold uppercase tracking-wider">Finalizar Registro de Boletos</span>
@@ -492,15 +500,15 @@
             ticketsContainer.innerHTML = '';
             const generatedNumbers = [];
 
-              for (let i = 0; i < ticketQty; i++) {
-            // Genera un número aleatorio entre 0 y 99999 y asegura 5 dígitos con ceros a la izquierda
-            const randomNum = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            generatedNumbers.push('#' + randomNum);
+            for (let i = 0; i < ticketQty; i++) {
+                // Genera boletos a 5 dígitos con ceros iniciales
+                const randomNum = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+                generatedNumbers.push('#' + randomNum);
     
-            const badge = document.createElement('span');
-            badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
-            badge.textContent = `#${randomNum}`;
-            ticketsContainer.appendChild(badge);
+                const badge = document.createElement('span');
+                badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
+                badge.textContent = `#${randomNum}`;
+                ticketsContainer.appendChild(badge);
             }
             const ticketsString = generatedNumbers.join(', ');
 
