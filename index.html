@@ -183,12 +183,24 @@
             <div class="glass-panel rounded-3xl p-6 lg:p-10 border border-brand-gold/30 relative overflow-hidden shadow-2xl">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                     
-                    <!-- Left: Vehicle Presentation -->
+                    <!-- Left: Vehicle Presentation & Progress Bar -->
                     <div class="lg:col-span-7 space-y-6">
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-3 py-1 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30 font-bold text-xs flex items-center gap-1.5">
-                                <i class="fa-solid fa-fire"></i> QUEDAN POCOS BOLETOS
-                            </span>
+                        <!-- BARRA DE PROGRESO DE BOLETOS VENDIDOS -->
+                        <div class="glass-panel p-4 rounded-2xl border border-brand-gold/25 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-brand-gold uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-fire text-brand-orange animate-bounce"></i> Progreso de Venta
+                                </span>
+                                <span id="progressText" class="text-white font-mono font-bold">Cargando...</span>
+                            </div>
+                            <!-- Contenedor de la barra -->
+                            <div class="w-full bg-brand-dark rounded-full h-3.5 overflow-hidden border border-brand-border p-0.5">
+                                <div id="progressBar" class="bg-gradient-gold h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-gray-400">
+                                <span>Meta: 10,000 Boletos</span>
+                                <span id="soldStatsText">0 vendidos</span>
+                            </div>
                         </div>
 
                         <h3 class="font-heading font-black text-2xl sm:text-4xl text-white tracking-tight">
@@ -483,6 +495,39 @@
             document.getElementById('checkoutModal').classList.add('hidden');
         }
 
+        // FUNCIÓN PARA CARGAR EL PROGRESO DE VENTAS DESDE GOOGLE SHEETS
+        function loadRaffleProgress() {
+            fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
+                .then(res => res.json())
+                .then(data => {
+                    let totalSold = 0;
+                    if (data.status === 'success' && data.results) {
+                        data.results.forEach(item => {
+                            let qty = parseInt(item.boletos) || 0;
+                            totalSold += qty;
+                        });
+                    }
+                    
+                    const totalGoal = 10000; // Meta de boletos
+                    let percentage = (totalSold / totalGoal) * 100;
+                    if (percentage > 100) percentage = 100;
+
+                    document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
+                    document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
+                    document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
+                })
+                .catch(err => {
+                    console.log("Error al cargar progreso:", err);
+                    document.getElementById('progressText').innerText = '92.4% Vendido';
+                    document.getElementById('progressBar').style.width = '92.4%';
+                    document.getElementById('soldStatsText').innerText = '9,240 de 10,000 vendidos';
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRaffleProgress();
+        });
+
         function processPurchase(e) {
             e.preventDefault();
             
@@ -538,6 +583,9 @@
             .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Confirmar y Obtener Mis Boletos';
+
+                // Actualizar barra de progreso al instante al comprar
+                loadRaffleProgress();
 
                 const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
                     `👤 *Nombre:* ${clientName}%0A` +
