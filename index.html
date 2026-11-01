@@ -267,74 +267,57 @@
             document.getElementById('checkoutModal').classList.add('hidden');
         }
 
+// Reemplaza esta URL con la que obtuviste de Google Apps Script:
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMUMNq8EtwZNDAcAqVzC3_ROtxtHO3h4b0T0tWHqBpSbWUidD9_bzrqWiemJSEIGyUoQ/exec';
+
 function processPurchase(e) {
     e.preventDefault();
     
-    // 1. Capturar los datos de los inputs del formulario
-    const nameInput = document.getElementById('nombreCliente');
-    const phoneInput = document.getElementById('telefonoCliente');
-    const paymentSelect = document.getElementById('metodoPago');
-
-    const clientName = nameInput ? nameInput.value.trim() : 'Cliente';
-    const clientPhone = phoneInput ? phoneInput.value.trim() : 'N/A';
-    const paymentMethod = paymentSelect ? paymentSelect.value : 'Transferencia';
-    
-    const totalAmount = (ticketQty * pricePerTicket).toLocaleString();
-
-    // 2. Generar números de boletos
+    // 1. Generar los números aleatorios de boletos y mostrarlos en pantalla
     const ticketsContainer = document.getElementById('generatedTicketsList');
-    if (ticketsContainer) {
-        ticketsContainer.innerHTML = '';
-    }
+    ticketsContainer.innerHTML = '';
     const generatedNumbers = [];
 
     for (let i = 0; i < ticketQty; i++) {
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         generatedNumbers.push('#' + randomNum);
         
-        if (ticketsContainer) {
-            const badge = document.createElement('span');
-            badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
-            badge.textContent = `#${randomNum}`;
-            ticketsContainer.appendChild(badge);
-        }
+        const badge = document.createElement('span');
+        badge.className = 'px-3 py-1.5 rounded-lg bg-brand-gold/10 border border-brand-gold/40 text-brand-gold font-mono font-bold text-xs';
+        badge.textContent = `#${randomNum}`;
+        ticketsContainer.appendChild(badge);
     }
+
+    // 2. Capturar los datos del formulario
+    const clientName = document.getElementById('nombreCliente')?.value || 'Cliente';
+    const clientPhone = document.getElementById('telefonoCliente')?.value || 'N/A';
+    const paymentMethod = document.getElementById('metodoPago')?.value || 'Transferencia';
+    const totalAmount = (ticketQty * 50).toLocaleString();
     const ticketsString = generatedNumbers.join(', ');
 
     const submitBtn = e.target.querySelector('button[type="submit"]');
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerText = 'Guardando en la base de datos...';
+        submitBtn.innerText = 'Guardando...';
     }
 
-    // 3. Objeto con los datos a enviar
-    const payload = {
-        nombre: clientName,
-        telefono: clientPhone,
-        boletos: ticketQty,
-        numeros: ticketsString,
-        total: totalAmount + ' DOP',
-        metodo: paymentMethod
-    };
-
-    // 4. Enviar a Google Sheets usando URLSearchParams (Evita bloqueos de CORS)
+    // 3. Enviar registro a Google Sheets
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
-            'Content-Type': 'text/plain;charset=utf-8',
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
-    })
-    .then(() => {
-        finalizarYRedirigir();
-    })
-    .catch(err => {
-        console.error("Error al guardar:", err);
-        // Aunque capture error de CORS en respuesta, los datos llegan a Google Sheets
-        finalizarYRedirigir();
-    });
-
-    function finalizarYRedirigir() {
+        body: JSON.stringify({
+            nombre: clientName,
+            telefono: clientPhone,
+            boletos: ticketQty,
+            numeros: ticketsString,
+            total: totalAmount + ' DOP',
+            metodo: paymentMethod
+        })
+    }).then(() => {
+        // 4. Abrir WhatsApp con el resumen de la compra
         const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
             `👤 *Nombre:* ${clientName}%0A` +
             `📱 *Teléfono:* ${clientPhone}%0A` +
@@ -342,16 +325,18 @@ function processPurchase(e) {
             `🔢 *Números:* ${ticketsString}%0A` +
             `💰 *Total:* RD$ ${totalAmount}%0A` +
             `💳 *Método:* ${paymentMethod}`;
-
-        window.open(`https://wa.me/19145088807?text=${waMessage}`, '_blank');
-
-        alert('¡Registro guardado con éxito!');
+            
+        window.open(`https://wa.me/1+19145088807?text=${waMessage}`, '_blank');
+        
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = 'Confirmar y Recibir Boletos';
         }
-        closeModal();
-    }
+    }).catch(err => {
+        console.error(err);
+        alert('Ocurrió un error al guardar en la base de datos.');
+        if (submitBtn) submitBtn.disabled = false;
+    });
 }
 </script>
 </body>
