@@ -133,7 +133,7 @@
                 </nav>
 
                 <div class="hidden sm:flex items-center gap-4">
-                    <a href="#rifa-principal" class="px-5 py-2.5 rounded-xl bg-gradient-gold text-black font-bold text-xs tracking-wider uppercase shadow-lg shadow-brand-orange/20 hover:scale-105 transition-all">
+                    <a href="#rifas" class="px-5 py-2.5 rounded-xl bg-gradient-gold text-black font-bold text-xs tracking-wider uppercase shadow-lg shadow-brand-orange/20 hover:scale-105 transition-all">
                         Comprar Boletos
                     </a>
                 </div>
@@ -522,62 +522,64 @@
 
         // LÓGICA DE VERIFICACIÓN DE BOLETOS
         function verifyTickets() {
-    const query = document.getElementById('verifyInput').value.trim();
-    const resultBox = document.getElementById('verifyResult');
-    const btnVerify = document.getElementById('btnVerify');
+            const query = document.getElementById('verifyInput').value.trim();
+            const resultBox = document.getElementById('verifyResult');
+            const btnVerify = document.getElementById('btnVerify');
 
-    if (!query) {
-        alert('Por favor ingresa un número de teléfono o número de boleto.');
-        return;
-    }
-
-    btnVerify.disabled = true;
-    btnVerify.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Buscando...';
-    resultBox.classList.add('hidden');
-
-    fetch(`${GOOGLE_SCRIPT_URL}?query=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-            resultBox.classList.remove('hidden');
-            if (data.status === 'success' && data.results.length > 0) {
-                let html = `<h4 class="font-bold text-white text-base mb-3 border-b border-brand-border pb-2">Resultados Encontrados (${data.results.length}):</h4>`;
-                
-                data.results.forEach(item => {
-                    let badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-                    if (item.estado && item.estado.toLowerCase().includes('completado')) {
-                        badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
-                    }
-
-                    html += `
-                        <div class="bg-brand-dark p-4 rounded-xl border border-brand-border space-y-2 text-left mb-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-white text-sm">👤 ${item.nombre}</span>
-                                <span class="px-2.5 py-1 rounded-lg border font-bold text-xs uppercase ${badgeColor}">
-                                    ${item.estado || 'Pendiente'}
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-300">📱 Teléfono: ${item.telefono}</div>
-                            <div class="text-xs text-gray-300">💰 Total: ${item.total} (${item.boletos} boletos)</div>
-                            <div class="text-xs text-brand-gold font-mono pt-1">🎟️ Números: ${item.numeros}</div>
-                        </div>
-                    `;
-                });
-                resultBox.className = 'mt-6 p-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-4';
-                resultBox.innerHTML = html;
-            } else {
-                resultBox.className = 'mt-6 p-6 rounded-2xl border border-red-500/30 bg-red-500/5 text-center text-red-400 text-sm font-semibold';
-                resultBox.innerHTML = '❌ No se encontraron registros con ese teléfono o boleto.';
+            if (!query) {
+                alert('Por favor ingresa un número de teléfono o número de boleto.');
+                return;
             }
-        })
-        .catch(err => {
-            console.error('Error al verificar:', err);
-            resultBox.classList.remove('hidden');
-            resultBox.className = 'mt-6 p-6 rounded-2xl border border-red-500/30 bg-red-500/5 text-center text-red-400 text-sm font-semibold';
-            resultBox.innerHTML = 'Error de conexión con la base de datos.';
-        })
-        .finally(() => {
-            btnVerify.disabled = false;
-            btnVerify.innerHTML = '<i class="fa-solid fa-search"></i> Buscar';
-        });
-}
+
+            btnVerify.disabled = true;
+            btnVerify.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Buscando...';
+            resultBox.classList.add('hidden');
+
+            fetch(`${GOOGLE_SCRIPT_URL}?query=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    resultBox.classList.remove('hidden');
+                    if (data.status === 'success' && data.results.length > 0) {
+                        let html = `<h4 class="font-bold text-white text-base mb-3 border-b border-brand-border pb-2">Resultados Encontrados (${data.results.length}):</h4>`;
+                        
+                        data.results.forEach(item => {
+                            let badgeColor = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+                            if (item.estado && item.estado.toLowerCase().includes('completado')) {
+                                badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+                            }
+
+                            html += `
+                                <div class="bg-brand-dark p-4 rounded-xl border border-brand-border space-y-2 text-left mb-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-bold text-white text-sm">👤 ${item.nombre}</span>
+                                        <span class="px-2.5 py-1 rounded-lg border font-bold text-xs uppercase ${badgeColor}">
+                                            ${item.estado || 'Pendiente'}
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-gray-300">📱 Teléfono: ${item.telefono}</div>
+                                    <div class="text-xs text-gray-300">💰 Total: ${item.total} (${item.boletos} boletos)</div>
+                                    <div class="text-xs text-brand-gold font-mono pt-1">🎟️ Números: ${item.numeros}</div>
+                                </div>
+                            `;
+                        });
+                        resultBox.className = 'mt-6 p-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-4';
+                        resultBox.innerHTML = html;
+                    } else {
+                        resultBox.className = 'mt-6 p-6 rounded-2xl border border-red-500/30 bg-red-500/5 text-center text-red-400 text-sm font-semibold';
+                        resultBox.innerHTML = '❌ No se encontraron registros con ese teléfono o boleto.';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al verificar:', err);
+                    resultBox.classList.remove('hidden');
+                    resultBox.className = 'mt-6 p-6 rounded-2xl border border-red-500/30 bg-red-500/5 text-center text-red-400 text-sm font-semibold';
+                    resultBox.innerHTML = 'Error de conexión con la base de datos.';
+                })
+                .finally(() => {
+                    btnVerify.disabled = false;
+                    btnVerify.innerHTML = '<i class="fa-solid fa-search"></i> Buscar';
+                });
+        }
+    </script>
+</body>
 </html>
