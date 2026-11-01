@@ -495,17 +495,22 @@
             document.getElementById('checkoutModal').classList.add('hidden');
         }
 
-        // FUNCIÓN PARA CARGAR EL PROGRESO DE VENTAS DESDE GOOGLE SHEETS
+        // FUNCIÓN MEJORADA PARA CARGAR EL PROGRESO DE VENTAS
         function loadRaffleProgress() {
             fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
                 .then(res => res.json())
                 .then(data => {
                     let totalSold = 0;
-                    if (data.status === 'success' && data.results) {
-                        data.results.forEach(item => {
-                            let qty = parseInt(item.boletos) || 0;
-                            totalSold += qty;
-                        });
+                    if (data.status === 'success') {
+                        // Utiliza totalVendidos directo si viene desde el script o suma del arreglo
+                        if (data.totalVendidos !== undefined) {
+                            totalSold = parseInt(data.totalVendidos) || 0;
+                        } else if (data.results && data.results.length > 0) {
+                            data.results.forEach(item => {
+                                let qty = parseInt(item.boletos) || 0;
+                                totalSold += qty;
+                            });
+                        }
                     }
                     
                     const totalGoal = 10000; // Meta total de boletos
@@ -518,13 +523,10 @@
                 })
                 .catch(err => {
                     console.error("Error al cargar progreso:", err);
-                    document.getElementById('progressText').innerText = '0.0% Vendido';
-                    document.getElementById('progressBar').style.width = '0%';
-                    document.getElementById('soldStatsText').innerText = '0 de 10,000 vendidos';
                 });
         }
 
-        // Ejecutar la carga del progreso al abrir la página
+        // Carga el progreso al abrir la página
         window.addEventListener('DOMContentLoaded', () => {
             loadRaffleProgress();
         });
@@ -547,7 +549,6 @@
             const generatedNumbers = [];
 
             for (let i = 0; i < ticketQty; i++) {
-                // Genera boletos a 5 dígitos con ceros iniciales
                 const randomNum = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
                 generatedNumbers.push('#' + randomNum);
     
@@ -585,7 +586,6 @@
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Confirmar y Obtener Mis Boletos';
 
-                // Actualiza la barra de progreso inmediatamente después de comprar
                 loadRaffleProgress();
 
                 const waMessage = `*NUEVA COMPRA - MARCOS RIFA*%0A%0A` +
@@ -622,7 +622,7 @@
                 .then(res => res.json())
                 .then(data => {
                     resultBox.classList.remove('hidden');
-                    if (data.status === 'success' && data.results.length > 0) {
+                    if (data.status === 'success' && data.results && data.results.length > 0) {
                         let html = `<h4 class="font-bold text-white text-base mb-3 border-b border-brand-border pb-2">Resultados Encontrados (${data.results.length}):</h4>`;
                         
                         data.results.forEach(item => {
