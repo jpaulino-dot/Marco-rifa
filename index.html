@@ -198,8 +198,8 @@
                                 <div id="progressBar" class="bg-gradient-gold h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
                             </div>
                             <div class="flex justify-between text-[10px] text-gray-400">
-                                <span>Meta: 10,000 Boletos</span>
-                                <span id="soldStatsText">0 vendidos</span>
+                                <span>Meta: 99,999 Boletos</span>
+                                <span id="soldStatsText">0 de 99,999 vendidos</span>
                             </div>
                         </div>
 
@@ -331,7 +331,7 @@
 
     <!-- FOOTER -->
     <footer class="bg-brand-dark border-t border-brand-border pt-12 pb-8 text-center text-xs text-gray-500">
-        <p>© 2026 Marcos Rifa Te Monta. Todos los derechos reservados.</p>
+        <p>© 2026 Marcos Rifa Te Monta. Todos los derechos reservados. V2</p>
     </footer>
 
     <!-- CHECKOUT MODAL CORREGIDO Y CONTENIDO DENTRO DEL CONTENEDOR -->
@@ -495,14 +495,13 @@
             document.getElementById('checkoutModal').classList.add('hidden');
         }
 
-        // FUNCIÓN MEJORADA PARA CARGAR EL PROGRESO DE VENTAS
+        // FUNCIÓN MEJORADA PARA CARGAR EL PROGRESO DE VENTAS (META 99,999)
         function loadRaffleProgress() {
             fetch(`${GOOGLE_SCRIPT_URL}?query=all`)
                 .then(res => res.json())
                 .then(data => {
                     let totalSold = 0;
                     if (data.status === 'success') {
-                        // Utiliza totalVendidos directo si viene desde el script o suma del arreglo
                         if (data.totalVendidos !== undefined) {
                             totalSold = parseInt(data.totalVendidos) || 0;
                         } else if (data.results && data.results.length > 0) {
@@ -513,16 +512,22 @@
                         }
                     }
                     
-                    const totalGoal = 10000; // Meta total de boletos
+                    const totalGoal = 99999; // Nueva meta de boletos a 5 dígitos
                     let percentage = (totalSold / totalGoal) * 100;
                     if (percentage > 100) percentage = 100;
 
-                    document.getElementById('progressBar').style.width = percentage.toFixed(1) + '%';
-                    document.getElementById('progressText').innerText = percentage.toFixed(1) + '% Vendido';
+                    // Mostrar porcentaje con dos decimales si es muy pequeño, o uno normal
+                    let displayPercentage = percentage < 0.1 && totalSold > 0 ? percentage.toFixed(3) : percentage.toFixed(1);
+
+                    document.getElementById('progressBar').style.width = percentage + '%';
+                    document.getElementById('progressText').innerText = displayPercentage + '% Vendido';
                     document.getElementById('soldStatsText').innerText = `${totalSold.toLocaleString()} de ${totalGoal.toLocaleString()} vendidos`;
                 })
                 .catch(err => {
                     console.error("Error al cargar progreso:", err);
+                    document.getElementById('progressText').innerText = '0.0% Vendido';
+                    document.getElementById('progressBar').style.width = '0%';
+                    document.getElementById('soldStatsText').innerText = '0 de 99,999 vendidos';
                 });
         }
 
