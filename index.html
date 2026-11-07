@@ -203,21 +203,23 @@
                             </div>
                         </div>
 
+                        <!-- NOMBRE DEL VEHÍCULO ACTUALIZADO -->
                         <h3 class="font-heading font-black text-2xl sm:text-4xl text-white tracking-tight">
-                            Toyota Hilux GR-Sport 2026 0KM <br>
+                            Toyota Corolla LE 2019 <br>
                             <span class="text-gradient-gold">+ RD$ 500,000 en Efectivo</span>
                         </h3>
 
                         <div class="relative rounded-2xl overflow-hidden border border-brand-border/80 group">
-                            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80" 
-                                 alt="Toyota Hilux GR Sport 2026" 
+                            <!-- IMAGEN DEL VEHÍCULO ACTUALIZADA (Asegúrate de colocar tu imagen con el nombre correcto o ruta web) -->
+                            <img src="auto.jpeg" 
+                                 alt="Toyota Corolla LE 2019" 
                                  class="w-full h-64 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent opacity-80"></div>
                             
                             <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                                 <div>
                                     <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">Premio Garantizado</span>
-                                    <p class="text-white font-bold text-sm">Transmisión Automática | 4x4 | Asientos de Piel</p>
+                                    <p class="text-white font-bold text-sm">Transmisión Automática | Aros Deportivos | Excelente Condición</p>
                                 </div>
                                 <span class="bg-black/80 backdrop-blur text-brand-gold font-extrabold px-3 py-1.5 rounded-xl border border-brand-gold/40 text-xs">
                                     RD$ 250 / BOLETO
@@ -346,7 +348,7 @@
             <div id="modalStep1" class="space-y-6">
                 <div class="border-b border-brand-border pb-4">
                     <span class="text-xs font-bold text-brand-gold uppercase tracking-wider">Finalizar Registro de Boletos</span>
-                    <h3 class="font-heading font-extrabold text-2xl text-white mt-1">Toyota Hilux GR-Sport 2026</h3>
+                    <h3 class="font-heading font-extrabold text-2xl text-white mt-1">Toyota Corolla LE 2019</h3>
                 </div>
 
                 <div class="bg-brand-dark p-4 rounded-2xl border border-brand-border/80 flex justify-between items-center">
@@ -516,7 +518,6 @@
                     let percentage = (totalSold / totalGoal) * 100;
                     if (percentage > 100) percentage = 100;
 
-                    // Mostrar porcentaje con dos decimales si es muy pequeño, o uno normal
                     let displayPercentage = percentage < 0.1 && totalSold > 0 ? percentage.toFixed(3) : percentage.toFixed(1);
 
                     document.getElementById('progressBar').style.width = percentage + '%';
@@ -531,7 +532,6 @@
                 });
         }
 
-        // Carga el progreso al abrir la página
         window.addEventListener('DOMContentLoaded', () => {
             loadRaffleProgress();
         });
@@ -601,14 +601,13 @@
                     `💰 *Total:* RD$ ${totalAmount} DOP%0A` +
                     `💳 *Método:* ${paymentMethod}`;
                 
-                document.getElementById('whatsappConfirmBtn').href = `https://wa.me/+18496348129?text=${waMessage}`;
+                document.getElementById('whatsappConfirmBtn').href = `https://wa.me/+19145088807?text=${waMessage}`;
 
                 document.getElementById('modalStep1').classList.add('hidden');
                 document.getElementById('modalStep2').classList.remove('hidden');
             });
         }
 
-        // LÓGICA DE VERIFICACIÓN DE BOLETOS
         function verifyTickets() {
             const query = document.getElementById('verifyInput').value.trim();
             const resultBox = document.getElementById('verifyResult');
